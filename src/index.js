@@ -4,6 +4,7 @@ import cors from 'cors';
 
 import authRoutes from './routes/authRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 
 const PORT = 5000;
 connectDB();
@@ -13,5 +14,6 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
