@@ -10,7 +10,7 @@ const generateToken = (user) => {
 
 // Register
 export const registerUser = async (req, res) => {
-  const { name, email, password ,department } = req.body;
+  const { name, email, password, department } = req.body;
 
   try {
     const exists = await User.findOne({ email });
@@ -28,7 +28,7 @@ export const registerUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-         department: user.department,
+        department: user.department,
         role: user.role,
       },
       token,
@@ -86,14 +86,14 @@ export const getUserProfile = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
   try {
-    const { name, email, role, department  } = req.body;
+    const { name, email, role, department } = req.body;
     const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ message: 'user Not Found' });
 
     user.name = name || user.name;
     user.email = email || user.email;
     user.role = role || user.role;
-    user.department  = department || user.department ;
+    user.department = department || user.department;
 
     const updated = await user.save();
     res.json(updated);
