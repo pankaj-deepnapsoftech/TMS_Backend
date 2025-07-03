@@ -54,18 +54,19 @@ export const getMyTickets = async (req, res) => {
       .populate('createdBy', 'name email');
 
     if (tickets.length === 0) {
-      return res.status(200).json({ message: "No tickets assigned", data: [] });
+      return res.status(200).json({ message: 'No tickets assigned', data: [] });
     }
 
     res.status(200).json({
-      message: "My assigned tickets",
+      message: 'My assigned tickets',
       data: tickets,
     });
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch your tickets", error: err.message });
+    res
+      .status(500)
+      .json({ message: 'Failed to fetch your tickets', error: err.message });
   }
 };
-
 
 export const updateTicket = async (req, res) => {
   try {
