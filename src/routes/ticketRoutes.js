@@ -13,11 +13,9 @@ const router = express.Router();
 
 router.post('/', authMiddleware, createTicket);
 router.get('/', authMiddleware, getAllTickets);
-router.get('/my', authMiddleware, getMyTickets); 
+router.get('/my', authMiddleware, getMyTickets);
 router.put('/:id', authMiddleware, updateTicket);
 router.delete('/:id', authMiddleware, deleteTicket);
 router.put('/:ticketId/comment', authMiddleware, addCommentToTicket);
 
-export default router; 
-
-
+export default router;
