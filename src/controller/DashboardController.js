@@ -2,10 +2,14 @@ import Ticket from '../models/Ticket.js';
 
 export const getDashboardStats = async (req, res) => {
   try {
-    const total = await Ticket.countDocuments();
-    const open = await Ticket.countDocuments({ status: 'Open' });
-    const resolved = await Ticeket.countDocumnts({ status: 'Resolved' });
-    const inProgress = await Ticket.countDocuments({ status: 'In Progress' });
+    const role = req?.user?.role !== 'admin';
+    const data = await Ticket.find(role ? { assignedTo: req?.user?._id } : {});
+    const total = data.length;
+    const open = data.filter((item) => item.status === 'Open').length;
+    const resolved = data.filter((item) => item.status === 'Resolved').length;
+    const inProgress = data.filter(
+      (item) => item.status === 'In Progress'
+    ).length;
 
     res.json({
       total,
