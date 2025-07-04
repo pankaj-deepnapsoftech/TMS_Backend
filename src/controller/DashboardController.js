@@ -4,7 +4,7 @@ export const getDashboardStats = async (req, res) => {
   try {
     const total = await Ticket.countDocuments();
     const open = await Ticket.countDocuments({ status: 'Open' });
-    const resolved = await Ticket.countDocumnts({ status: 'Resolved' });
+    const resolved = await Ticeket.countDocumnts({ status: 'Resolved' });
     const inProgress = await Ticket.countDocuments({ status: 'In Progress' });
 
     res.json({
