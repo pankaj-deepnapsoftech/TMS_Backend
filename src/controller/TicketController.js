@@ -1,4 +1,5 @@
 import Ticket from '../models/Ticket.js';
+import Notification from '../models/Notification.js';
 
 export const createTicket = async (req, res) => {
   try {
@@ -24,6 +25,16 @@ export const createTicket = async (req, res) => {
     });
 
     const saved = await ticket.save();
+    await Promise.all(
+      assignedTo.map((userId) =>
+        Notification.create({
+          user: userId,
+          type: 'ticket',
+          message: `New ticket "${title}" has been assigned to you.`,
+          ticket: saved._id,
+        })
+      )
+    );
     res.status(201).json({ success: true, data: saved });
   } catch (err) {
     console.error('Create Ticket Error:', err);
@@ -88,24 +99,49 @@ export const deleteTicket = async (req, res) => {
   }
 };
 
-// controllers/TicketController.js
 export const addCommentToTicket = async (req, res) => {
   const { ticketId } = req.params;
   const { text } = req.body;
   const userId = req.user.id;
+
   try {
-    const ticket = await Ticket.findById(ticketId);
-    if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
+    const ticket = await Ticket.findById(ticketId)
+      .populate('assignedTo', 'name email')
+      .populate('createdBy', 'name email');
+
+    if (!ticket) {
+      return res.status(404).json({ message: 'Ticket not found' });
+    }
 
     ticket.comments.push({ author: userId, text });
     await ticket.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: 'Comment added', data: ticket });
+    const notifyUserIds = ticket.assignedTo
+      .filter((member) => member._id.toString() !== userId)
+      .map((member) => member._id);
+
+    if (ticket.createdBy._id.toString() !== userId) {
+      notifyUserIds.push(ticket.createdBy._id);
+    }
+
+    const notifications = notifyUserIds.map((uid) => ({
+      user: uid,
+      type: 'comment',
+      message: `New comment on ticket "${ticket.title}"`,
+      ticket: ticket._id,
+    }));
+
+    await Notification.insertMany(notifications);
+
+    res.status(200).json({
+      success: true,
+      message: 'Comment added and notifications sent',
+      data: ticket,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Failed to add comment', error: error.message });
+    res.status(500).json({
+      message: 'Failed to add comment',
+      error: error.message,
+    });
   }
 };
