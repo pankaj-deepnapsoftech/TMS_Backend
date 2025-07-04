@@ -4,7 +4,7 @@ export const getDashboardStats = async (req, res) => {
   try {
     const total = await Ticket.countDocuments();
     const open = await Ticket.countDocuments({ status: 'Open' });
-    const resolved = await Ticeket.countDocumnts({ status: 'Resolved' });
+    const resolved = await Ticket.countDocuments({ status: 'Resolved' });
     const inProgress = await Ticket.countDocuments({ status: 'In Progress' });
 
     res.json({
@@ -16,5 +16,4 @@ export const getDashboardStats = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
-}; 
-
+};
