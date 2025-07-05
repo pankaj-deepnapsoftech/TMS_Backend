@@ -1,6 +1,8 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env.config.js';
+import { sendResetOTP } from '../utils/sendMail.js';
+import bcrypt from 'bcryptjs';
 
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, config.JWT_SECRET, {
@@ -124,4 +126,51 @@ export const deleteUserProfile = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
+};
+
+export const sendOTP = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user)
+    return res.status(404).json({ message: 'User not found with that email' });
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+  user.resetOTP = otp;
+  user.otpExpires = expiry;
+  await user.save();
+
+  await sendResetOTP(email, otp);
+
+  res.status(200).json({ message: 'OTP sent to your email' });
+};
+
+export const verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user || user.resetOTP !== otp || user.otpExpires < new Date()) {
+    return res.status(400).json({ message: 'Invalid or expired OTP' });
+  }
+
+  res.status(200).json({ message: 'OTP verified' });
+};
+
+export const resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user || user.resetOTP !== otp || user.otpExpires < new Date()) {
+    return res.status(400).json({ message: 'Invalid or expired OTP' });
+  }
+
+  user.password = newPassword;
+  user.markModified('password'); 
+  user.resetOTP = null;
+  user.otpExpires = null;
+  await user.save();
+
+  res.status(200).json({ message: 'Password reset successfully' });
 };

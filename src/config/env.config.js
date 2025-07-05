@@ -13,6 +13,8 @@ class Config {
   LOCAL_BACKEND_URL;
   LOCAL_IMAGE_URL;
   IMAGE_URL;
+  EMAIL_USER;
+  EMAIL_PASS;
 
   constructor() {
     this.NODE_ENV = process.env.NODE_ENV;
@@ -24,6 +26,8 @@ class Config {
     this.LOCAL_BACKEND_URL = process.env.LOCAL_BACKEND_URL;
     this.LOCAL_IMAGE_URL = process.env.LOCAL_IMAGE_URL;
     this.IMAGE_URL = process.env.IMAGE_URL;
+    this.EMAIL_USER = process.env.EMAIL_USER;
+    this.EMAIL_PASS = process.env.EMAIL_PASS;
   }
 }
 
