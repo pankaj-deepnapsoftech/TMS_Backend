@@ -167,7 +167,7 @@ export const resetPassword = async (req, res) => {
   }
 
   user.password = newPassword;
-  user.markModified('password'); 
+  user.markModified('password');
   user.resetOTP = null;
   user.otpExpires = null;
   await user.save();
