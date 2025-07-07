@@ -8,7 +8,7 @@ class Config {
   MONGODB_URI;
   JWT_SECRET;
   CLIENT_URL;
-  LOCAL_CLIENT_URL;
+  CLIENT_URL_LOCAL;
   BACKEND_URL;
   LOCAL_BACKEND_URL;
   LOCAL_IMAGE_URL;
@@ -21,7 +21,7 @@ class Config {
     this.MONGODB_URI = process.env.MONGODB_URI;
     this.JWT_SECRET = process.env.JWT_SECRET;
     this.CLIENT_URL = process.env.CLIENT_URL;
-    this.LOCAL_CLIENT_URL = process.env.LOCAL_CLIENT_URL;
+    this.CLIENT_URL_LOCAL = process.env.CLIENT_URL_LOCAL;
     this.BACKEND_URL = process.env.BACKEND_URL;
     this.LOCAL_BACKEND_URL = process.env.LOCAL_BACKEND_URL;
     this.LOCAL_IMAGE_URL = process.env.LOCAL_IMAGE_URL;
