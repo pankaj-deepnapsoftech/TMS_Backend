@@ -125,7 +125,8 @@ export const addCommentToTicket = async (req, res) => {
     }
 
     const notifications = notifyUserIds.map((uid) => ({
-      user: uid,
+      user: uid, // receiver
+      sender: userId, // person who commented
       type: 'comment',
       message: `New comment on ticket "${ticket.title}"`,
       ticket: ticket._id,
