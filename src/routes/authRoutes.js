@@ -9,6 +9,8 @@ import {
   sendOTP,
   verifyOTP,
   resetPassword,
+  getUnapprovedUsers,
+  approveUser,
 } from '../controller/AuthController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
@@ -16,6 +18,8 @@ const router = express.Router();
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.get('/unapproved', authMiddleware, getUnapprovedUsers); 
+router.put('/approve/:id', authMiddleware, approveUser);  
 router.get('/profile', authMiddleware, getUserProfile);
 router.get('/employees', getAllEmployees);
 router.put('/:id', authMiddleware, updateUserProfile);
@@ -25,3 +29,4 @@ router.post('/verify-otp', verifyOTP);
 router.post('/reset-password', resetPassword);
 
 export default router;
+
