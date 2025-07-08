@@ -1,5 +1,6 @@
 import Ticket from '../models/Ticket.js';
 import Notification from '../models/Notification.js';
+import { io } from '../index.js';
 
 export const createTicket = async (req, res) => {
   try {
@@ -115,23 +116,31 @@ export const addCommentToTicket = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const ticket = await Ticket.findById(ticketId)
-      .populate('assignedTo', 'name email')
-      .populate('createdBy', 'name email');
-
+    // First: Find ticket (no populate yet)
+    const ticket = await Ticket.findById(ticketId);
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
 
+    // Add new comment
     ticket.comments.push({ author: userId, text });
-    await ticket.save();
+   const data =  await ticket.save();
 
+    io.emit('ticket', data);
+
+    // Now: Re-fetch ticket with populated fields (important!)
+    const updatedTicket = await Ticket.findById(ticketId)
+      .populate('assignedTo', 'name email')
+      .populate('createdBy', 'name email')
+      .populate('comments.author', 'name email');
+
+    // Create notifications
     const notifyUserIds = ticket.assignedTo
-      .filter((member) => member._id.toString() !== userId)
-      .map((member) => member._id);
+      .filter((member) => member.toString() !== userId)
+      .map((member) => member.toString());
 
-    if (ticket.createdBy._id.toString() !== userId) {
-      notifyUserIds.push(ticket.createdBy._id);
+    if (ticket.createdBy.toString() !== userId) {
+      notifyUserIds.push(ticket.createdBy.toString());
     }
 
     const notifications = notifyUserIds.map((uid) => ({
@@ -147,9 +156,10 @@ export const addCommentToTicket = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Comment added and notifications sent',
-      data: ticket,
+      data: updatedTicket, // send re-populated ticket
     });
   } catch (error) {
+    console.error('Add Comment Error:', error);
     res.status(500).json({
       message: 'Failed to add comment',
       error: error.message,
