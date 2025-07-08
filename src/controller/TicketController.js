@@ -12,6 +12,14 @@ export const createTicket = async (req, res) => {
       status,
       dueDate,
     } = req.body;
+    const lastTicket = await Ticket.findOne().sort({ createdAt: -1 });
+
+    let nextTicketNumber = 'TKT-0001';
+    if (lastTicket && lastTicket.ticketNumber) {
+      const lastNumber = parseInt(lastTicket.ticketNumber.split('-')[1]);
+      const newNumber = lastNumber + 1;
+      nextTicketNumber = `TKT-${newNumber.toString().padStart(4, '0')}`;
+    }
 
     const ticket = new Ticket({
       title,
@@ -22,6 +30,7 @@ export const createTicket = async (req, res) => {
       status,
       dueDate,
       createdBy: req.user.id,
+      ticketNumber: nextTicketNumber,
     });
 
     const saved = await ticket.save();
