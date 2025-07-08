@@ -4,21 +4,19 @@ const ticketSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
-    // teamAssignment: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     department: { type: String, required: true },
     priority: {
       type: String,
       enum: ['Low', 'Medium', 'High'],
       default: 'Medium',
     },
-    assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], //this
+    assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     status: {
       type: String,
       enum: ['Open', 'In Progress', 'Under Review', 'Resolved', 'Closed'],
       default: 'Open',
     },
     comments: [
-      //this
       {
         author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         text: String,

@@ -29,6 +29,7 @@ export const createTicket = async (req, res) => {
       assignedTo.map((userId) =>
         Notification.create({
           user: userId,
+          sender: req.user.id,
           type: 'ticket',
           message: `New ticket "${title}" has been assigned to you.`,
           ticket: saved._id,
