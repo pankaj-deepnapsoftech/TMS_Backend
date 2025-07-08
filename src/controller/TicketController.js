@@ -1,5 +1,6 @@
 import Ticket from '../models/Ticket.js';
 import Notification from '../models/Notification.js';
+import { io } from '../index.js';
 
 export const createTicket = async (req, res) => {
   try {
@@ -123,7 +124,9 @@ export const addCommentToTicket = async (req, res) => {
 
     // Add new comment
     ticket.comments.push({ author: userId, text });
-    await ticket.save();
+   const data =  await ticket.save();
+
+    io.emit('ticket', data);
 
     // Now: Re-fetch ticket with populated fields (important!)
     const updatedTicket = await Ticket.findById(ticketId)
