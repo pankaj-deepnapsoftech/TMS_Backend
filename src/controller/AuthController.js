@@ -73,7 +73,10 @@ export const loginUser = async (req, res) => {
 
 export const getUnapprovedUsers = async (req, res) => {
   try {
-    const users = await User.find({ role: 'employee', isApproved: false }).select('-password');
+    const users = await User.find({
+      role: 'employee',
+      isApproved: false,
+    }).select('-password');
     res.status(200).json({ success: true, data: users });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
@@ -88,12 +91,29 @@ export const approveUser = async (req, res) => {
     user.isApproved = true;
     await user.save();
 
-    res.status(200).json({ success: true, message: 'User approved successfully' });
+    res
+      .status(200)
+      .json({ success: true, message: 'User approved successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 };
 
+export const rejectUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.isApproved = false;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: 'User rejected successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 export const getUserProfile = async (req, res) => {
   try {
