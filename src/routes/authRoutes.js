@@ -11,6 +11,7 @@ import {
   resetPassword,
   getUnapprovedUsers,
   approveUser,
+  rejectUser,
 } from '../controller/AuthController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
@@ -20,6 +21,7 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.get('/unapproved', authMiddleware, getUnapprovedUsers);
 router.put('/approve/:id', authMiddleware, approveUser);
+router.put('/reject/:id', authMiddleware, rejectUser);
 router.get('/profile', authMiddleware, getUserProfile);
 router.get('/employees', getAllEmployees);
 router.put('/:id', authMiddleware, updateUserProfile);

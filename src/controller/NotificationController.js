@@ -1,3 +1,4 @@
+import { io } from '../index.js';
 import Notification from '../models/Notification.js';
 
 // Get all notifications for a user
@@ -9,6 +10,7 @@ export const getNotifications = async (req, res) => {
       })
       .populate('sender', 'name email')
       .populate('user', 'name email');
+
     res.json({ success: true, data: notifications });
   } catch (err) {
     res

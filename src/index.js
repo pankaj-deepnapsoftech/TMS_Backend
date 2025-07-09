@@ -1,7 +1,7 @@
 import express from 'express';
 import connectDB from './config/db.js';
 import cors from 'cors';
-import http from "http";
+import http from 'http';
 
 import authRoutes from './routes/authRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
@@ -31,23 +31,24 @@ app.use('/api/notifications', notificationRoutes);
 
 const server = http.createServer(app);
 
-const io = new Server(server,{
-  cors:{
-    origin: config.NODE_ENV !== 'development' ? config.CLIENT_URL : config.CLIENT_URL_LOCAL,
+const io = new Server(server, {
+  cors: {
+    origin:
+      config.NODE_ENV !== 'development'
+        ? config.CLIENT_URL
+        : config.CLIENT_URL_LOCAL,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  }
-})
+  },
+});
 
 io.on('connection', (socket) => {
   console.log('A user Socket connected id is : %s', socket.id);
 });
 
-
 io.on('disconnect', (reason) => {
   console.log('A user Socket disconneted', reason);
 });
 
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`))
-
-export { io }
+export { io };

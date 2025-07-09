@@ -13,6 +13,7 @@ export const createTicket = async (req, res) => {
       status,
       dueDate,
     } = req.body;
+
     const lastTicket = await Ticket.findOne().sort({ createdAt: -1 });
 
     let nextTicketNumber = 'TKT-0001';
@@ -35,17 +36,28 @@ export const createTicket = async (req, res) => {
     });
 
     const saved = await ticket.save();
+
+    // Create notifications and emit socket events
     await Promise.all(
-      assignedTo.map((userId) =>
-        Notification.create({
+      assignedTo.map(async (userId) => {
+        const notification = await Notification.create({
           user: userId,
           sender: req.user.id,
           type: 'ticket',
           message: `New ticket "${title}" has been assigned to you.`,
           ticket: saved._id,
-        })
-      )
+        });
+
+        // Emit socket event to specific user
+        io.to(userId.toString()).emit('notification', {
+          type: 'ticket',
+          message: notification.message,
+          ticketId: saved._id,
+          ticketNumber: saved.ticketNumber,
+        });
+      })
     );
+
     res.status(201).json({ success: true, data: saved });
   } catch (err) {
     console.error('Create Ticket Error:', err);
@@ -156,15 +168,15 @@ export const addCommentToTicket = async (req, res) => {
 
     // Add new comment
     ticket.comments.push({ author: userId, text });
-   const data =  await ticket.save();
-
-    io.emit('ticket', data);
+    const data = await ticket.save();
 
     // Now: Re-fetch ticket with populated fields (important!)
     const updatedTicket = await Ticket.findById(ticketId)
       .populate('assignedTo', 'name email')
       .populate('createdBy', 'name email')
       .populate('comments.author', 'name email');
+
+    io.emit('ticket', updatedTicket);
 
     // Create notifications
     const notifyUserIds = ticket.assignedTo
