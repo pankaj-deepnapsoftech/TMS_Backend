@@ -101,12 +101,43 @@ export const getMyTickets = async (req, res) => {
 
 export const updateTicket = async (req, res) => {
   try {
-    const updated = await Ticket.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    
+    const { id } = req.params;
+    const newData = req.body;
+
+    // Step 1: Get the current ticket with existing assignedTo
+    const existingTicket = await Ticket.findById(id);
+    if (!existingTicket) {
+      return res.status(404).json({ message: 'Ticket not found ' });
+    }
+
+    const oldAssigned = existingTicket.assignedTo.map(id => id.toString());
+    const newAssigned = newData.assignedTo?.map(id => id.toString()) || [];
+
+    // Step 2: Detect newly added users
+    const newlyAssigned = newAssigned.filter(uid => !oldAssigned.includes(uid));
+
+    // Step 3: Update the ticket
+    const updated = await Ticket.findByIdAndUpdate(id, newData, { new: true });
+
+    // Step 4: Notify newly assigned users
+    if (newlyAssigned.length > 0) {
+      await Promise.all(
+        newlyAssigned.map((userId) =>
+          Notification.create({
+            user: userId,
+            sender: req.user.id,
+            type: 'ticket',
+            message: `You have been added to ticket "${updated.title}".`,
+            ticket: updated._id,
+          })
+        )
+      );
+    }
 
     res.status(200).json({ success: true, data: updated });
   } catch (err) {
+    console.error('Update Ticket Error:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -170,6 +201,7 @@ export const addCommentToTicket = async (req, res) => {
       message: 'Comment added and notifications sent',
       data: updatedTicket, // send re-populated ticket
     });
+
   } catch (error) {
     console.error('Add Comment Error:', error);
     res.status(500).json({
