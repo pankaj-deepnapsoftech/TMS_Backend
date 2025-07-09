@@ -122,7 +122,7 @@ export const updateTicket = async (req, res) => {
 
     // Step 4: Notify newly assigned users
     if (newlyAssigned.length > 0) {
-      await Promise.all(
+    const UpdatedNotifications =   await Promise.all(
         newlyAssigned.map((userId) =>
           Notification.create({
             user: userId,
@@ -133,6 +133,8 @@ export const updateTicket = async (req, res) => {
           })
         )
       );
+      io.emit('UpdatedNoti', UpdatedNotifications);
+
     }
 
     res.status(200).json({ success: true, data: updated });
