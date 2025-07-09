@@ -40,7 +40,7 @@ export const createTicket = async (req, res) => {
     // Create notifications and emit socket events
     await Promise.all(
       assignedTo.map(async (userId) => {
-        const notification = await Notification.create({
+      const ticketnotifications = await Notification.create({
           user: userId,
           sender: req.user.id,
           type: 'ticket',
@@ -48,15 +48,12 @@ export const createTicket = async (req, res) => {
           ticket: saved._id,
         });
 
-        // Emit socket event to specific user
-        io.to(userId.toString()).emit('notification', {
-          type: 'ticket',
-          message: notification.message,
-          ticketId: saved._id,
-          ticketNumber: saved.ticketNumber,
-        });
+      //  console.log("noti ticket",noti)
+      
+       io.emit('ticketCreateNotification', ticketnotifications);
       })
     );
+
 
     res.status(201).json({ success: true, data: saved });
   } catch (err) {
@@ -107,6 +104,7 @@ export const updateTicket = async (req, res) => {
     const updated = await Ticket.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
+
     res.status(200).json({ success: true, data: updated });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -144,7 +142,7 @@ export const addCommentToTicket = async (req, res) => {
       .populate('createdBy', 'name email')
       .populate('comments.author', 'name email');
 
-    io.emit('ticket', updatedTicket);
+    
 
     // Create notifications
     const notifyUserIds = ticket.assignedTo
@@ -163,7 +161,9 @@ export const addCommentToTicket = async (req, res) => {
       ticket: ticket._id,
     }));
 
-    await Notification.insertMany(notifications);
+    const notificatiosn = await Notification.insertMany(notifications);
+
+    io.emit('ticket', { updatedTicket, notificatiosn });
 
     res.status(200).json({
       success: true,

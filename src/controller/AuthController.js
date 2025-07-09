@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/env.config.js';
 import { sendResetOTP } from '../utils/sendMail.js';
 import bcrypt from 'bcryptjs';
+import { io } from '../index.js';
 
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, role: user.role }, config.JWT_SECRET, {
@@ -21,7 +22,7 @@ export const registerUser = async (req, res) => {
     }
 
     const user = await User.create({ name, email, password, department });
-
+    io.emit('registeruser', user);
     const token = generateToken(user);
 
     res.status(201).json({
