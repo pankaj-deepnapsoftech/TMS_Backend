@@ -40,7 +40,7 @@ export const createTicket = async (req, res) => {
     // Create notifications and emit socket events
     await Promise.all(
       assignedTo.map(async (userId) => {
-      const ticketnotifications = await Notification.create({
+        const ticketnotifications = await Notification.create({
           user: userId,
           sender: req.user.id,
           type: 'ticket',
@@ -48,12 +48,11 @@ export const createTicket = async (req, res) => {
           ticket: saved._id,
         });
 
-      //  console.log("noti ticket",noti)
-      
-       io.emit('ticketCreateNotification', ticketnotifications);
+        //  console.log("noti ticket",noti)
+
+        io.emit('ticketCreateNotification', ticketnotifications);
       })
     );
-
 
     res.status(201).json({ success: true, data: saved });
   } catch (err) {
@@ -101,7 +100,6 @@ export const getMyTickets = async (req, res) => {
 
 export const updateTicket = async (req, res) => {
   try {
-    
     const { id } = req.params;
     const newData = req.body;
 
@@ -111,18 +109,20 @@ export const updateTicket = async (req, res) => {
       return res.status(404).json({ message: 'Ticket not found ' });
     }
 
-    const oldAssigned = existingTicket.assignedTo.map(id => id.toString());
-    const newAssigned = newData.assignedTo?.map(id => id.toString()) || [];
+    const oldAssigned = existingTicket.assignedTo.map((id) => id.toString());
+    const newAssigned = newData.assignedTo?.map((id) => id.toString()) || [];
 
     // Step 2: Detect newly added users
-    const newlyAssigned = newAssigned.filter(uid => !oldAssigned.includes(uid));
+    const newlyAssigned = newAssigned.filter(
+      (uid) => !oldAssigned.includes(uid)
+    );
 
     // Step 3: Update the ticket
     const updated = await Ticket.findByIdAndUpdate(id, newData, { new: true });
 
     // Step 4: Notify newly assigned users
     if (newlyAssigned.length > 0) {
-    const UpdatedNotifications =   await Promise.all(
+      const UpdatedNotifications = await Promise.all(
         newlyAssigned.map((userId) =>
           Notification.create({
             user: userId,
@@ -134,7 +134,6 @@ export const updateTicket = async (req, res) => {
         )
       );
       io.emit('UpdatedNoti', UpdatedNotifications);
-
     }
 
     res.status(200).json({ success: true, data: updated });
@@ -175,8 +174,6 @@ export const addCommentToTicket = async (req, res) => {
       .populate('createdBy', 'name email')
       .populate('comments.author', 'name email');
 
-    
-
     // Create notifications
     const notifyUserIds = ticket.assignedTo
       .filter((member) => member.toString() !== userId)
@@ -203,7 +200,6 @@ export const addCommentToTicket = async (req, res) => {
       message: 'Comment added and notifications sent',
       data: updatedTicket, // send re-populated ticket
     });
-
   } catch (error) {
     console.error('Add Comment Error:', error);
     res.status(500).json({
