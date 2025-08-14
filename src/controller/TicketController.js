@@ -1,6 +1,8 @@
 import Ticket from '../models/Ticket.js';
 import Notification from '../models/Notification.js';
 import { io } from '../index.js';
+import { AsyncHandler } from '../utils/AsyncHandler.js';
+import mongoose from 'mongoose';
 
 export const createTicket = async (req, res) => {
   try {
@@ -208,3 +210,41 @@ export const addCommentToTicket = async (req, res) => {
     });
   }
 };
+
+export const getAssinedPersionByTicketId = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const data = await Ticket.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $lookup:{
+        from:"users",
+        localField:"assignedTo",
+        foreignField:"_id",
+        as:"assignedTo",
+        pipeline:[
+          {
+            $project:{
+              name:1,
+              email:1
+            }
+          }
+        ]
+      }
+    },
+    {
+      $project:{
+        assignedTo:1
+      }
+    }
+  ]);
+
+  return res.status(200).json({
+    data,
+  });
+});
+

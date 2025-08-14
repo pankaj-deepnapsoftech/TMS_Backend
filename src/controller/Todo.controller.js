@@ -8,7 +8,7 @@ export const CreateTodo = AsyncHandler(async (req, res) => {
   const todo = await TodoModel.create({ ...data, createdBy });
   res.status(201).json({
     message: 'Todo created successfully',
-    todo,
+    data:todo,
   });
 });
 // ---------------------- create Todo api end here ---------------------
@@ -16,10 +16,11 @@ export const CreateTodo = AsyncHandler(async (req, res) => {
 //  ---------------------- get all todos api started here --------------------------------
 export const GetAllTodo = AsyncHandler(async (req, res) => {
   const { page, limit } = req.query;
+  const {id} = req.params;
   const pages = parseInt(page) || 1;
   const limits = parseInt(limit) || 20;
   const skip = (pages - 1) * limits;
-  const data = await TodoModel.find({})
+  const data = await TodoModel.find({ ticket_id :id}).populate([{path:"assinedTo",select:"name email"}])
     .sort({ _id: -1 })
     .skip(skip)
     .limit(limits);

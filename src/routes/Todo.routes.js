@@ -21,7 +21,7 @@ const routes = Router();
 
 // ----------------- Todo routes -------------------
 routes.route('/create').post(Validator(TodoValidationSchema), CreateTodo);
-routes.route('/get').get(GetAllTodo);
+routes.route('/get/:id').get(GetAllTodo);
 routes.route('/delete/:id').delete(DeleteTodo);
 routes.route('/update/:id').put(UpdateTodo);
 routes.route('/change-status/:id').put(Validator(StatusHistory), ChangeStatus);
