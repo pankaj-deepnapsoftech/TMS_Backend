@@ -3,8 +3,7 @@ import connectDB from './config/db.js';
 import cors from 'cors';
 import http from 'http';
 
-
-// ----------------- local imports ------------------- 
+// ----------------- local imports -------------------
 import { config } from './config/env.config.js';
 import { Server } from 'socket.io';
 
@@ -13,20 +12,14 @@ import authRoutes from './routes/authRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
-import TodoRoutes from "./routes/Todo.routes.js";
+import TodoRoutes from './routes/Todo.routes.js';
 import { authMiddleware } from './middleware/authMiddleware.js';
-
-
-
 
 // ----------------- server port -------------------
 const PORT = 8093;
 
-
-// -------------  db connection here --------------- 
- connectDB();
-
-
+// -------------  db connection here ---------------
+connectDB();
 
 const app = express();
 
@@ -52,9 +45,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/todos', authMiddleware,TodoRoutes);
-
-
+app.use('/api/todos', authMiddleware, TodoRoutes);
 
 // -------------------------- http server for socket connection --------------------------
 // Create an HTTP server and pass the Express app to it
@@ -79,7 +70,6 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log('A user Socket connected id is : %s', socket.id);
 });
-
 
 // ------------------------------ Handle disconnection ------------------------------
 io.on('disconnect', (reason) => {
