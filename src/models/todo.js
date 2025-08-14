@@ -13,7 +13,7 @@ const statusHistorySchema = new Schema({
 
 const todoSchema = new Schema(
   {
-    ticket_id: { type: Schema.Types.ObjectId, ref:"Ticket",required:true},
+    ticket_id: { type: Schema.Types.ObjectId, ref: 'Ticket', required: true },
     title: { type: String, required: true },
     assinedTo: { type: Schema.Types.ObjectId, ref: 'User' },
     due_date: { type: Date, required: true },

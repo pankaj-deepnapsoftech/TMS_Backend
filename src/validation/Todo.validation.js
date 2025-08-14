@@ -8,7 +8,7 @@ export const TodoValidationSchema = yup.object({
   ticket_id: yup
     .string()
     .matches(/^[0-9a-fA-F]{24}$/, 'Invalid User ID') // MongoDB ObjectId check
-    .required("ticket_id is required"),
+    .required('ticket_id is required'),
   assinedTo: yup
     .string()
     .matches(/^[0-9a-fA-F]{24}$/, 'Invalid User ID') // MongoDB ObjectId check
